@@ -1,0 +1,7 @@
+Changes made to minisat:
+
+- Fixed the wrong default definition in core/SolverTypes.h:53 
+- Commented out Main.cc:40 and Main.cc:46 due to linker issue I do not intend on resolving.
+
+minisat compiled on macOS Mojave 10.15.2
+
