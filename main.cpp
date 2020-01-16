@@ -4,9 +4,13 @@
 
 #include <stdio.h>
 
-string GenerateMiniSATInput(int numberOfQueens);
+//Process current row/column/diag
+void ProcessCurrentArray(int* currentArray[]);
 
+string GenerateMiniSATInput(int numberOfQueens);
 void ProcessMiniSATOutput(string outputAddress);
+
+
 
 
 int main(int argc, char const *argv[])
@@ -34,6 +38,43 @@ int main(int argc, char const *argv[])
 	return 0;
 }
 
+void ProcessCurrentArray(int* currentArray[])
+{
+	//Simple Diag Check
+	//Only exec if not diagnal arrays
+	if ((currentArray[0] - currentArray[1]) == -1)
+	{
+		string currentLine;
+
+		for (int i = 0; i < currentArray.size(); ++i)
+		{
+			currentLine.append(currentArray[i]);
+			currentLine.append(" ");
+		}
+
+		currentLine.append("0");
+
+		inputfp.fput(currentLine);
+	}
+
+	// Exclusive ors
+	for (int i = 0; i < currentArray.size(); ++i)
+	{
+		for (int j = i+1; j < currentArray.size(); ++j)
+		{
+			string currentLine;
+
+			currentLine.append("-");
+			currentLine.append(currentArray[i]);
+			currentLine.append(" -");
+			currentLine.append(currentArray[j]);
+			currentLine.append(" 0");
+
+			inputfp.fput(currentLine);
+		}
+	}
+}
+
 string GenerateMiniSATInput(int numberOfQueens)
 {
 	string inputAddress = "./minisatinput";
@@ -47,14 +88,62 @@ string GenerateMiniSATInput(int numberOfQueens)
 	// Core of the assignment
 	else
 	{
+		//Calculate number of terms
+		int numberOfTerms = -1;
+
+		// Input header
+		inputFP.fput("p cnf %d %d\n", numberOfQueens*numberOfQueens, numberOfTerms);
+
 		// 1  2  3  4  5
 		// 6  7  8  9  10
 		// 11 12 13 14 15
 		// 16 17 18 19 20
 		// 21 22 23 24 25
 
-		
+		// Rows
+		for (unsigned i = 0; i <= numberOfQueens; ++i) 
+		{
+			int currentRow[];
 
+			for(unsigned j = 0; j < numberOfQueens; ++j) {
+
+				currentRow[i] = i * numberOfQueens + j + 1; // Plus one to offset
+			}
+
+			ProcessCurrentArray(currentRow);
+		}
+
+		// Columns
+		for (unsigned i = 0; i <= numberOfQueens; ++i) 
+		{
+			int currentCol[];
+
+			for(unsigned j = 0; j < numberOfQueens; ++j) {
+
+				currentCol[i] = j * numberOfQueens + i + 1; // Plus one to offset
+			}
+
+			ProcessCurrentArray(currentCol);
+		}
+
+		// Diag
+		// https://stackoverflow.com/questions/20420065/loop-diagonally-through-two-dimensional-array
+		for (unsigned k = 0; k < numberOfQueens * 2; ++k) 
+		{
+			int currentDiag[];
+
+			for (unsigned j = 0; j <= k; ++j) 
+			{
+				int i = k - j;
+
+				if (i < numberOfQueens && j < numberOfQueens)
+				{
+					currentDiag[j] = i * numberOfQueens + j + 1;
+				}
+			}
+
+			ProcessCurrentArray(currentDiag);
+		}
 	}
 
 	fclose(inputFP)
@@ -76,6 +165,9 @@ void ProcessMiniSATOutput(string outputAddress)
 		{
 			printf("unsatisfiable\n");
 		}
+
+		// Satisfiable
+		// Result is all the positive numbers
 		else
 		{
 
